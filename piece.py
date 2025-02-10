@@ -16,16 +16,26 @@ class ChessPiece(QLabel):
         # Make label draggable
         self.setMouseTracking(True)
     
+    def setParent(self, parent):
+        super().setParent(parent)
+        if parent:
+            # Reload and rescale image when parent changes
+            self.load_image()
+            self.show()  # Make sure piece is visible
+    
     def load_image(self):
         # Image path format: 'images/{color}_{piece}.png'
         image_path = f"images/{self.color}_{self.piece_type}.png"
         pixmap = QPixmap(image_path)
         scaled_pixmap = pixmap.scaled(60, 60, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.setPixmap(scaled_pixmap)
+        self.setAlignment(Qt.AlignCenter)
     
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.drag_start_position = event.pos()
+            # Forward the click to the parent square
+            if self.parent():
+                self.parent().mousePressEvent(event)
     
     def mouseMoveEvent(self, event):
         if not (event.buttons() & Qt.LeftButton):
