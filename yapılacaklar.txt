@@ -1,1 +1,2 @@
 durum kontrolü yok, şah, mat, pat gibi
+Sah mat
