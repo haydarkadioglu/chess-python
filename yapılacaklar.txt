@@ -1,1 +1,4 @@
 durum kontrolü yok, şah, mat, pat gibi
+
+
+g*y neco
