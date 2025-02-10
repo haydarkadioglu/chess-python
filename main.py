@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication
 import sys
-from board import ChessBoard
+from scripts.board import ChessBoard
 
 
 if __name__ == '__main__':
