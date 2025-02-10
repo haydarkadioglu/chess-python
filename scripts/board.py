@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QGridLayout
 from PyQt5.QtGui import QPainter, QColor, QPen
 from PyQt5.QtCore import Qt
-from piece import *
-from rules import MoveRules
-from square import ChessSquare
+from scripts.piece import *
+from scripts.rules import MoveRules
+from scripts.square import ChessSquare
 
 class ChessBoard(QMainWindow):
     def __init__(self):

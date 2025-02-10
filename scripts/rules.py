@@ -1,4 +1,4 @@
-from constants import BOARD_SIZE, DIRECTIONS
+from scripts.constants import BOARD_SIZE, DIRECTIONS
 
 class MoveRules:
     @staticmethod

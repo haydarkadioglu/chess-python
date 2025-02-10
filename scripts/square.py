@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPen, QColor
 from PyQt5.QtCore import Qt
-from board import ChessBoard
+from scripts.board import ChessBoard
 
 
 class ChessSquare(QWidget):

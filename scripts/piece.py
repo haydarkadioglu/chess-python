@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
-from constants import BOARD_SIZE, DIRECTIONS
+from scripts.constants import BOARD_SIZE, DIRECTIONS
 
 class ChessPiece(QLabel):
     def __init__(self, piece_type, color, parent=None):
