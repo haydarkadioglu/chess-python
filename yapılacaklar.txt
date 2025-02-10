@@ -1,2 +1,6 @@
 durum kontrolü yok, şah, mat, pat gibi
 Sah mat
+
+git branch --all
+
+git switch branchname
