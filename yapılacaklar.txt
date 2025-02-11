@@ -4,3 +4,5 @@ Sah mat
 git branch --all
 
 git switch branchname
+
+git switch branchname
