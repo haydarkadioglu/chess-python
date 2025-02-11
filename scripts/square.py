@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPen, QColor
 from PyQt5.QtCore import Qt
-from scripts.board import ChessBoard
+from scripts.event_handler import ChessEventHandler
 
 
 class ChessSquare(QWidget):
@@ -56,8 +56,4 @@ class ChessSquare(QWidget):
         self.update()
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            # Find the ChessBoard instance (grandparent)
-            board = self.parent().parent()
-            if isinstance(board, ChessBoard):
-                board.square_clicked(self)
+        ChessEventHandler.handle_square_click(self, event)
