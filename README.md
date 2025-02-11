@@ -1,4 +1,11 @@
-# Chess-python
+### TODO:
+- [ ] Castling moves
+- [ ] En passant
+- [ ] Pawn promotion
+- [ ] Stalemate detection
+- [ ] Move history
+- [ ] Save/Load games
+
 
 # Chess-python
 
@@ -61,14 +68,6 @@ python main.py
 - Check detection
 - Board visualization
 - Turn system
-
-### TODO:
-- [ ] Castling moves
-- [ ] En passant
-- [ ] Pawn promotion
-- [ ] Stalemate detection
-- [ ] Move history
-- [ ] Save/Load games
 
 ## License
 Released under the Unlicense - see LICENSE file for details.
