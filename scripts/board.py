@@ -1,9 +1,11 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QGridLayout
+from PyQt5.QtWidgets import QMainWindow, QWidget, QGridLayout, QMessageBox
 from PyQt5.QtGui import QPainter, QColor, QPen
 from PyQt5.QtCore import Qt
 from scripts.piece import *
 from scripts.rules import MoveRules
 from scripts.square import ChessSquare
+from scripts.constants import BOARD_SIZE
+from scripts.game_state import GameState
 
 class ChessBoard(QMainWindow):
     def __init__(self):
@@ -64,6 +66,7 @@ class ChessBoard(QMainWindow):
         self.selected_square = None
         self.highlighted_squares = []
         self.current_player = 'white'
+        self.game_over = False
     
     def get_piece_at(self, row, col):
         """Helper method to get piece at given position"""
@@ -126,37 +129,74 @@ class ChessBoard(QMainWindow):
 
         return filtered_moves
 
+    def make_move(self, target_square):
+        # Remove captured piece if any
+        if target_square.piece:
+            target_square.piece.deleteLater()
+            target_square.piece = None
+
+        # Move piece to new square
+        old_square = self.selected_square
+        old_square.piece = None
+        target_square.piece = self.selected_piece
+        self.selected_piece.setParent(target_square)
+        
+        # Mark piece as moved
+        self.selected_piece.has_moved = True
+        
+        # Switch turns
+        self.current_player = 'black' if self.current_player == 'white' else 'white'
+        opponent_color = 'black' if self.current_player == 'white' else 'white'
+        
+        # Reset all highlights
+        self.clear_highlights()
+        self.reset_all_squares()
+        
+        # Check for check/checkmate
+        if GameState.is_check(self, self.current_player):
+            # Highlight king in check
+            king_pos = GameState.find_king(self, self.current_player)
+            if king_pos:
+                king_square = self.squares[king_pos[0]][king_pos[1]]
+                king_square.is_checkmate = True
+                king_square.update()
+            
+            if GameState.is_checkmate(self, self.current_player):
+                QMessageBox.information(self, 'Checkmate!', 
+                                      f'{opponent_color.capitalize()} wins!')
+                self.game_over = True
+            else:
+                # Only highlight defensive moves using get_defensive_moves
+                defensive_moves = GameState.get_defensive_moves(self, self.current_player)
+                for _, _, move in defensive_moves:  # Unpack piece, start, end positions
+                    target = self.squares[move[0]][move[1]]
+                    target.highlight_move()
+                    self.highlighted_squares.append(target)
+        
+        # Clear selection
+        self.selected_piece = None
+        self.selected_square = None
+
+    def reset_all_squares(self):
+        for row in range(BOARD_SIZE):
+            for col in range(BOARD_SIZE):
+                self.squares[row][col].is_checkmate = False
+                self.squares[row][col].update()
+
     def square_clicked(self, square):
+        if self.game_over:
+            return
         if self.selected_piece:
-            # Get all valid moves for the selected piece
             valid_moves = MoveRules.get_valid_moves(self.selected_piece, 
                                                   (self.selected_square.row, self.selected_square.col), 
                                                   self)
             
-            # Check if clicked square is a valid move
             if (square.row, square.col) in valid_moves:
-                # Remove captured piece if any
-                if square.piece:
-                    square.piece.setParent(None)
-                    square.piece = None
-                
-                # Move piece to new square
-                old_square = self.selected_square
-                old_square.piece = None
-                square.piece = self.selected_piece
-                self.selected_piece.setParent(square)
-                
-                # Mark piece as moved
-                self.selected_piece.has_moved = True
-                
-                # Switch turns
-                self.current_player = 'black' if self.current_player == 'white' else 'white'
-                
-                # Clear selection and highlights
-                self.clear_highlights()
-                self.selected_piece = None
-                self.selected_square = None
-                
+                # Check if move would put/leave player in check
+                if not GameState.would_be_in_check(self, self.selected_piece,
+                                                 (self.selected_square.row, self.selected_square.col),
+                                                 (square.row, square.col)):
+                    self.make_move(square)
             elif square.piece and square.piece.color == self.current_player:
                 # Select new piece
                 self.clear_highlights()

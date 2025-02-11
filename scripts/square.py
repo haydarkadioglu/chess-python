@@ -14,22 +14,27 @@ class ChessSquare(QWidget):
         self.piece = None
         self.is_highlighted = False
         self.is_selected = False  # New flag for selected square
+        self.is_checkmate = False  # New flag for checkmate highlight
         self.setFixedSize(60, 60)
         self.setContentsMargins(0, 0, 0, 0)
         
     def paintEvent(self, event):
         painter = QPainter(self)
-        # Draw base square
+        
+        # Draw base color
         painter.fillRect(self.rect(), self.current_color)
         
+        # Draw checkmate/check highlight
+        if self.is_checkmate:
+            overlay = QColor(255, 0, 0, 120)  # Semi-transparent red
+            painter.fillRect(self.rect(), overlay)
+        
+        # Draw selection/move highlights
         if self.is_selected:
-            # Draw thick green border for selected square
-            pen = QPen(QColor(76, 175, 80), 3)  # Thicker green border
+            pen = QPen(QColor(76, 175, 80), 3)
             painter.setPen(pen)
             painter.drawRect(1, 1, self.width()-2, self.height()-2)
-        
         elif self.is_highlighted:
-            # Draw green border
             pen = QPen(QColor(76, 175, 80), 2)
             painter.setPen(pen)
             painter.drawRect(1, 1, self.width()-2, self.height()-2)
