@@ -186,33 +186,63 @@ class ChessBoard(QMainWindow):
     def square_clicked(self, square):
         if self.game_over:
             return
+
+        # If a piece is already selected
         if self.selected_piece:
-            valid_moves = MoveRules.get_valid_moves(self.selected_piece, 
-                                                  (self.selected_square.row, self.selected_square.col), 
-                                                  self)
-            
-            if (square.row, square.col) in valid_moves:
-                # Check if move would put/leave player in check
-                if not GameState.would_be_in_check(self, self.selected_piece,
-                                                 (self.selected_square.row, self.selected_square.col),
-                                                 (square.row, square.col)):
-                    self.make_move(square)
-            elif square.piece and square.piece.color == self.current_player:
-                # Select new piece
-                self.clear_highlights()
-                self.selected_piece = square.piece
-                self.selected_square = square
-                square.select_square()
-                self.highlighted_squares.append(square)
+            # If we're in check, only allow defensive moves
+            if GameState.is_check(self, self.current_player):
+                defensive_moves = GameState.get_defensive_moves(self, self.current_player)
+                valid_defensive_moves = []
                 
-                # Show valid moves for new selection
-                valid_moves = MoveRules.get_valid_moves(square.piece, 
-                                                      (square.row, square.col), 
+                # Find moves for the selected piece
+                for piece, start, end in defensive_moves:
+                    if piece == self.selected_piece:
+                        valid_defensive_moves.append(end)
+                
+                if (square.row, square.col) in valid_defensive_moves:
+                    self.make_move(square)
+                elif square.piece and square.piece.color == self.current_player:
+                    # Select new piece and show its defensive moves
+                    self.clear_highlights()
+                    self.selected_piece = square.piece
+                    self.selected_square = square
+                    square.select_square()
+                    self.highlighted_squares.append(square)
+                    
+                    # Show only this piece's defensive moves
+                    for piece, start, end in defensive_moves:
+                        if piece == self.selected_piece:
+                            target = self.squares[end[0]][end[1]]
+                            target.highlight_move()
+                            self.highlighted_squares.append(target)
+            else:
+                # Normal move handling when not in check
+                valid_moves = MoveRules.get_valid_moves(self.selected_piece, 
+                                                      (self.selected_square.row, self.selected_square.col), 
                                                       self)
-                for row, col in valid_moves:
-                    target_square = self.squares[row][col]
-                    target_square.highlight_move()
-                    self.highlighted_squares.append(target_square)
+                
+                if (square.row, square.col) in valid_moves:
+                    # Check if move would put/leave player in check
+                    if not GameState.would_be_in_check(self, self.selected_piece,
+                                                     (self.selected_square.row, self.selected_square.col),
+                                                     (square.row, square.col)):
+                        self.make_move(square)
+                elif square.piece and square.piece.color == self.current_player:
+                    # Select new piece
+                    self.clear_highlights()
+                    self.selected_piece = square.piece
+                    self.selected_square = square
+                    square.select_square()
+                    self.highlighted_squares.append(square)
+                    
+                    # Show valid moves for new selection
+                    valid_moves = MoveRules.get_valid_moves(square.piece, 
+                                                          (square.row, square.col), 
+                                                          self)
+                    for row, col in valid_moves:
+                        target_square = self.squares[row][col]
+                        target_square.highlight_move()
+                        self.highlighted_squares.append(target_square)
                 
         elif square.piece and square.piece.color == self.current_player:
             # First piece selection
@@ -235,4 +265,3 @@ class ChessBoard(QMainWindow):
             square.reset_color()
         self.highlighted_squares.clear()
         self.selected_piece = None
-
